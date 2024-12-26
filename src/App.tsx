@@ -17,9 +17,11 @@ export const App = () => {
   const [loading, setLoading] = useState(false);
   const selectDesktopVideo = async () => {
     setLoading(true);
-    const { canceled } = await window.electronAPI.openFile();
+    const { canceled, filePath } = await window.electronAPI.openFile();
+    if (canceled || !filePath) return setLoading(false);
+    const res = await window.electronAPI.processDesktopFile(filePath);
+    console.log('res', res)
     setLoading(false);
-    if (canceled) return;
   };
   const processMobileVideo = async () => {};
   return (
@@ -29,7 +31,7 @@ export const App = () => {
       <Content>
         <Space direction="vertical" size="large">
           <Button type="primary" onClick={selectDesktopVideo} loading={loading}>
-            Select Desktop Video
+            Process Desktop Video
           </Button>
           <Form onFinish={processMobileVideo}>
             <Form.Item label="Mobile Video" name="mobileVideo">
