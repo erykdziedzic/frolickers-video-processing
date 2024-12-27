@@ -41,15 +41,14 @@ const ffmpegPath =
 const getOutputPath = (outputPath, screenDirName) => {
   const dirName = path.join(outputPath, screenDirName);
   const hlsSegmentFilename = path.join(dirName, '/v%v/streamv_%03d.ts');
-  const masterPlName = path.join(dirName, '/master.m3u8');
-  const hls = path.join(dirName, '/v%v/stream.m3u8');
-  return { hlsSegmentFilename, masterPlName, hls };
+  const output = path.join(dirName, '/v%v/stream.m3u8');
+  return { hlsSegmentFilename, output: output };
 };
 
 const DESKTOP_DIR_NAME = 'desktopVideo';
 
 ipcMain.handle('processDesktopFile', async (_event, filePath, outputPath) => {
-  const { hlsSegmentFilename, masterPlName, hls } = getOutputPath(
+  const { hlsSegmentFilename, output } = getOutputPath(
     outputPath,
     DESKTOP_DIR_NAME
   );
@@ -60,8 +59,8 @@ ipcMain.handle('processDesktopFile', async (_event, filePath, outputPath) => {
         -var_stream_map "v:0,a:0 v:1,a:1 v:2,a:2" \
         -hls_time 4 -hls_playlist_type vod \
         -hls_segment_filename "${hlsSegmentFilename}" \
-        -master_pl_name "${masterPlName}" \
-        -f hls "${hls}"`;
+        -master_pl_name master.m3u8 \
+        -f hls "${output}"`;
 
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
@@ -77,7 +76,7 @@ ipcMain.handle('processDesktopFile', async (_event, filePath, outputPath) => {
 const MOBILE_DIR_NAME = 'mobileVideo';
 
 ipcMain.handle('processMobileFile', async (_event, filePath, outputPath) => {
-  const { hlsSegmentFilename, masterPlName, hls } = getOutputPath(
+  const { hlsSegmentFilename, output } = getOutputPath(
     outputPath,
     MOBILE_DIR_NAME
   );
@@ -89,8 +88,8 @@ ipcMain.handle('processMobileFile', async (_event, filePath, outputPath) => {
         -var_stream_map "v:0,a:0 v:1,a:1 v:2,a:2 v:3,a:3" \
         -hls_time 4 -hls_playlist_type vod \
         -hls_segment_filename "${hlsSegmentFilename}" \
-        -master_pl_name "${masterPlName}" \
-        -f hls "${hls}"`;
+        -master_pl_name master.m3u8 \
+        -f hls "${output}"`;
 
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
