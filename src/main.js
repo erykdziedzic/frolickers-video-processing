@@ -1,7 +1,6 @@
 const path = require('path');
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const { spawn } = require('child_process');
-const os = require('os');
 
 let win;
 
@@ -33,7 +32,7 @@ ipcMain.handle('openDirectory', async () => {
   return { canceled, path: filePaths[0] };
 });
 
-const ffmpegPath = os.platform() === 'darwin' ? './bin/ffmpeg-macos' : './bin/ffmpeg-windows.exe';
+const ffmpegPath = path.join(__dirname, app.isPackaged ? '../../bin' : '../bin', 'ffmpeg-macos');
 
 const getOutputPath = (outputPath, screenDirName) => {
   const dirName = path.join(outputPath, screenDirName);
