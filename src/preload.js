@@ -7,4 +7,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     await ipcRenderer.invoke('processDesktopFile', filePath, outputPath),
   processMobileFile: async (filePath, outputPath) =>
     await ipcRenderer.invoke('processMobileFile', filePath, outputPath),
+  onProgress: (callback) =>
+    ipcRenderer.on('ffmpeg-progress', (_event, value) => callback(value)),
 });

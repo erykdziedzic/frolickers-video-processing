@@ -11,7 +11,7 @@
   "author": "Eryk Dziedzic",
   "main": "src/main.js",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite build --mode development -w",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -25,10 +25,10 @@
     "@vitejs/plugin-react": "^4.3.4",
     "electron": "^33.2.1",
     "electron-builder": "^25.1.8",
-    "vite": "^6.0.5"
+    "vite": "^6.0.6"
   },
   "dependencies": {
-    "antd": "^5.22.6",
+    "antd": "^5.22.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "styled-components": "^6.1.13"

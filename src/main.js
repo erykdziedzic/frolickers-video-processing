@@ -1,6 +1,6 @@
 const path = require('path');
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
-const { exec } = require('child_process');
+const { spawn } = require('child_process');
 const os = require('os');
 
 let win;
@@ -52,22 +52,108 @@ ipcMain.handle('processDesktopFile', async (_event, filePath, outputPath) => {
     outputPath,
     DESKTOP_DIR_NAME
   );
-  const command = `"${ffmpegPath}" -i "${filePath}" \
-        -map 0:v -map 0:a -c:v libx264 -c:a aac -profile:v high -level:v 5.2 -vf "format=yuv420p,scale=1280x720" -x264opts no-scenecut -g 48 -keyint_min 48 -sc_threshold 0 -b:v:0 400k -s:v:0 1280x720 -maxrate 440k -bufsize 800k -b:a:0 64k \
-        -map 0:v -map 0:a -c:v libx264 -c:a aac -profile:v high -level:v 5.2 -vf "format=yuv420p,scale=1280x720" -x264opts no-scenecut -g 48 -keyint_min 48 -sc_threshold 0 -b:v:1 800k -s:v:1 1280x720 -maxrate 880k -bufsize 1600k -b:a:1 96k \
-        -map 0:v -map 0:a -c:v libx264 -c:a aac -profile:v high -level:v 5.2 -vf "format=yuv420p,scale=1920x1080" -x264opts no-scenecut -g 48 -keyint_min 48 -sc_threshold 0 -b:v:2 2000k -s:v:2 1920x1080 -maxrate 2200k -bufsize 4000k -b:a:2 96k \
-        -var_stream_map "v:0,a:0 v:1,a:1 v:2,a:2" \
-        -hls_time 4 -hls_playlist_type vod \
-        -hls_segment_filename "${hlsSegmentFilename}" \
-        -master_pl_name master.m3u8 \
-        -f hls "${output}"`;
+
+  // prettier-ignore
+  const args = [
+    // Input
+    '-i', filePath,
+  
+    // Stream 0 (400k - 720p)
+    '-map', '0:v', '-map', '0:a',
+    '-c:v', 'libx264',
+    '-c:a', 'aac',
+    '-profile:v', 'high',
+    '-level:v', '5.2',
+    '-vf', 'format=yuv420p,scale=1280x720',
+    '-x264opts', 'no-scenecut',
+    '-g', '48',
+    '-keyint_min', '48',
+    '-sc_threshold', '0',
+    '-b:v:0', '400k',
+    '-s:v:0', '1280x720',
+    '-maxrate', '440k',
+    '-bufsize', '800k',
+    '-b:a:0', '64k',
+  
+    // Stream 1 (800k - 720p)
+    '-map', '0:v', '-map', '0:a',
+    '-c:v', 'libx264',
+    '-c:a', 'aac',
+    '-profile:v', 'high',
+    '-level:v', '5.2',
+    '-vf', 'format=yuv420p,scale=1280x720',
+    '-x264opts', 'no-scenecut',
+    '-g', '48',
+    '-keyint_min', '48',
+    '-sc_threshold', '0',
+    '-b:v:1', '800k',
+    '-s:v:1', '1280x720',
+    '-maxrate', '880k',
+    '-bufsize', '1600k',
+    '-b:a:1', '96k',
+  
+    // Stream 2 (2000k - 1080p)
+    '-map', '0:v', '-map', '0:a',
+    '-c:v', 'libx264',
+    '-c:a', 'aac',
+    '-profile:v', 'high',
+    '-level:v', '5.2',
+    '-vf', 'format=yuv420p,scale=1920x1080',
+    '-x264opts', 'no-scenecut',
+    '-g', '48',
+    '-keyint_min', '48',
+    '-sc_threshold', '0',
+    '-b:v:2', '2000k',
+    '-s:v:2', '1920x1080',
+    '-maxrate', '2200k',
+    '-bufsize', '4000k',
+    '-b:a:2', '96k',
+  
+    // HLS specific settings
+    '-var_stream_map', 'v:0,a:0 v:1,a:1 v:2,a:2',
+    '-hls_time', '4',
+    '-hls_playlist_type', 'vod',
+    '-progress', '-',
+    '-nostats',
+    '-hls_segment_filename', hlsSegmentFilename,
+    '-master_pl_name', 'master.m3u8',
+    '-f', 'hls', output
+  ];
 
   return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        reject(error.message);
+    const process = spawn(ffmpegPath, args);
+    let duration = 0;
+
+    process.stderr.on('data', (data) => {
+      const match = data.toString().match(/Duration: (\d{2}):(\d{2}):(\d{2})/);
+      if (match) {
+        const hours = parseInt(match[1], 10);
+        const minutes = parseInt(match[2], 10);
+        const seconds = parseInt(match[3], 10);
+        duration = hours * 3600 + minutes * 60 + seconds;
+      }
+    });
+
+    process.stdout.on('data', (data) => {
+      const progress = data.toString();
+      const timeMatch = progress.match(/out_time_ms=(\d+)/);
+      if (timeMatch) {
+        const timeMs = parseInt(timeMatch[1]) / 1000000;
+        const percentage = (timeMs / duration) * 100;
+        win.webContents.send('ffmpeg-progress', {
+          percentage: Math.min(100, Math.round(percentage)),
+          timeProcessed: timeMs,
+          duration,
+        });
+      }
+    });
+
+    process.on('error', (error) => reject(error.message));
+    process.on('close', (code) => {
+      if (code === 0) {
+        resolve('Success');
       } else {
-        resolve(stdout || stderr);
+        reject(`FFmpeg process exited with code ${code}`);
       }
     });
   });

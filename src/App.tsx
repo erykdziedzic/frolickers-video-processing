@@ -1,6 +1,6 @@
-import { Button, Layout, Space } from 'antd';
+import { Button, Layout, Progress, Space } from 'antd';
 import styled, { createGlobalStyle } from 'styled-components';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const GlobalStyle = createGlobalStyle`
 body {
@@ -13,9 +13,33 @@ const Content = styled(Layout.Content)`
   padding: 24px;
 `;
 
+const formatTime = (seconds: number) => {
+  const hrs = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${hrs.toString().padStart(2, '0')}:${mins
+    .toString()
+    .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
+
 export const App = () => {
   const [outputPath, setOutputPath] = useState<string>();
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [timeInfo, setTimeInfo] = useState<{
+    processed: number;
+    total: number;
+  }>();
+
+  useEffect(() => {
+    window.electronAPI.onProgress((progressData) => {
+      setProgress(progressData.percentage);
+      setTimeInfo({
+        processed: progressData.timeProcessed,
+        total: progressData.duration,
+      });
+    });
+  }, []);
 
   const selectOutputPath = async () => {
     const { canceled, path } = await window.electronAPI.openDirectory();
@@ -24,10 +48,17 @@ export const App = () => {
 
   const selectDesktopVideo = async () => {
     setLoading(true);
+    setProgress(0);
     const { canceled, filePath } = await window.electronAPI.openFile();
     if (canceled || !filePath) return setLoading(false);
-    await window.electronAPI.processDesktopFile(filePath, outputPath);
+    try {
+      await window.electronAPI.processDesktopFile(filePath, outputPath);
+    } catch (error) {
+      console.error('Processing failed:', error);
+    }
     setLoading(false);
+    setProgress(0);
+    setTimeInfo(undefined);
   };
 
   const processMobileVideo = async () => {
@@ -47,6 +78,17 @@ export const App = () => {
           <Button type="primary" onClick={selectOutputPath}>
             Select Output Path
           </Button>
+          {loading && (
+            <div>
+              <Progress percent={progress} status="active" />
+              {timeInfo && (
+                <div style={{ textAlign: 'center', marginTop: 8 }}>
+                  {formatTime(timeInfo.processed)} /{' '}
+                  {formatTime(timeInfo.total)}
+                </div>
+              )}
+            </div>
+          )}
           <Button
             type="primary"
             onClick={selectDesktopVideo}
