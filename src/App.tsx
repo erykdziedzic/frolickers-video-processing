@@ -17,9 +17,7 @@ const formatTime = (seconds: number) => {
   const hrs = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
   const secs = Math.floor(seconds % 60);
-  return `${hrs.toString().padStart(2, '0')}:${mins
-    .toString()
-    .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
 export const App = () => {
@@ -63,10 +61,17 @@ export const App = () => {
 
   const processMobileVideo = async () => {
     setLoading(true);
+    setProgress(0);
     const { canceled, filePath } = await window.electronAPI.openFile();
     if (canceled || !filePath) return setLoading(false);
-    await window.electronAPI.processMobileFile(filePath, outputPath);
+    try {
+      await window.electronAPI.processMobileFile(filePath, outputPath);
+    } catch (error) {
+      console.error('Processing failed:', error);
+    }
     setLoading(false);
+    setProgress(0);
+    setTimeInfo(undefined);
   };
 
   return (
@@ -75,7 +80,7 @@ export const App = () => {
       <Layout.Header />
       <Content>
         <Space direction="vertical" size="large">
-          <Button type="primary" onClick={selectOutputPath}>
+          <Button type="primary" onClick={selectOutputPath} loading={loading}>
             Select Output Path
           </Button>
           {loading && (
@@ -83,26 +88,15 @@ export const App = () => {
               <Progress percent={progress} status="active" />
               {timeInfo && (
                 <div style={{ textAlign: 'center', marginTop: 8 }}>
-                  {formatTime(timeInfo.processed)} /{' '}
-                  {formatTime(timeInfo.total)}
+                  {formatTime(timeInfo.processed)} / {formatTime(timeInfo.total)}
                 </div>
               )}
             </div>
           )}
-          <Button
-            type="primary"
-            onClick={selectDesktopVideo}
-            loading={loading}
-            disabled={!outputPath}
-          >
+          <Button type="primary" onClick={selectDesktopVideo} loading={loading} disabled={!outputPath}>
             Process Desktop Video
           </Button>
-          <Button
-            type="primary"
-            onClick={processMobileVideo}
-            loading={loading}
-            disabled={!outputPath}
-          >
+          <Button type="primary" onClick={processMobileVideo} loading={loading} disabled={!outputPath}>
             Process Mobile Video
           </Button>
         </Space>
