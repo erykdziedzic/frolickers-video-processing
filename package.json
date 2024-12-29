@@ -12,20 +12,18 @@
   "main": "src/main.js",
   "scripts": {
     "dev": "vite build --mode development -w",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "electron": "electron .",
-    "package": "electron-builder"
+    "electron": "wait-on dist/index.html && electron .",
+    "start": "concurrently \"npm run dev\" \"npm run electron\""
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.1",
     "electron": "^33.2.1",
-    "electron-builder": "^25.1.8",
-    "vite": "^6.0.6"
+    "vite": "^6.0.6",
+    "wait-on": "^8.0.1"
   },
   "dependencies": {
     "antd": "^5.22.7",
