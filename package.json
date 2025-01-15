@@ -1,6 +1,6 @@
 {
   "name": "frolickers-video-processing",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Electron app for processing videos",
   "homepage": "https://github.com/erykdziedzic/frolickers-video-processing#readme",
   "repository": {
@@ -29,6 +29,8 @@
   },
   "dependencies": {
     "antd": "^5.22.7",
+    "dotenv": "^16.4.7",
+    "electron-notarize": "^1.2.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "styled-components": "^6.1.13"
@@ -54,7 +56,16 @@
       "src/**/*"
     ],
     "mac": {
-      "category": "public.app-category.business"
-    }
+      "category": "public.app-category.business",
+      "hardenedRuntime": true,
+      "entitlements": "entitlements.mac.plist",
+      "entitlementsInherit": "entitlements.mac.plist",
+      "gatekeeperAssess": false,
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "afterSign": "notarize.js"
   }
 }
