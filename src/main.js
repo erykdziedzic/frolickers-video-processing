@@ -20,7 +20,12 @@ app.on('ready', () => {
 ipcMain.handle('openFile', async () => {
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ['openFile'],
-    filters: [{ name: 'Videos', extensions: ['mp4', 'mkv', 'avi', 'mov'] }],
+    filters: [
+      {
+        name: 'Videos',
+        extensions: ['mp4', 'mkv', 'avi', 'mov', 'm4v', 'flv', 'wmv', 'webm', 'mpeg', 'mpg', '3gp', 'ogv'],
+      },
+    ],
   });
   return { canceled, filePath: filePaths[0] };
 });
