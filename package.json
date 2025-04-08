@@ -1,6 +1,6 @@
 {
   "name": "frolickers-video-processing",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Electron app for processing videos",
   "homepage": "https://github.com/erykdziedzic/frolickers-video-processing#readme",
   "repository": {
@@ -17,23 +17,23 @@
     "build": "vite build && electron-builder"
   },
   "devDependencies": {
-    "@types/node": "^22.10.2",
-    "@types/react": "^19.0.2",
-    "@types/react-dom": "^19.0.2",
+    "@types/node": "^22.14.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.1",
     "@vitejs/plugin-react": "^4.3.4",
-    "concurrently": "^9.1.1",
-    "electron": "^33.2.1",
-    "electron-builder": "^25.1.8",
-    "vite": "^6.0.6",
-    "wait-on": "^8.0.1"
+    "concurrently": "^9.1.2",
+    "electron": "^35.1.4",
+    "electron-builder": "^26.0.12",
+    "vite": "^6.2.5",
+    "wait-on": "^8.0.3"
   },
   "dependencies": {
-    "antd": "^5.22.7",
+    "antd": "^5.24.6",
     "dotenv": "^16.4.7",
     "electron-notarize": "^1.2.2",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "styled-components": "^6.1.13"
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "styled-components": "^6.1.17"
   },
   "build": {
     "appId": "frolickers-video-processing",
