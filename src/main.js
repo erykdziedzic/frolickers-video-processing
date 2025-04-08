@@ -122,17 +122,16 @@ const processFile = (filePath, outputPath, dirName, videoConfigs) => {
 
 ipcMain.handle('processDesktopFile', (_event, filePath, outputPath) => {
   const videoConfigs = [
-    { scale: '1280x720', bitrate: '400k', maxrate: '440k', bufsize: '800k', audioBitrate: '64k' },
     { scale: '1280x720', bitrate: '800k', maxrate: '880k', bufsize: '1600k', audioBitrate: '96k' },
     { scale: '1920x1080', bitrate: '2000k', maxrate: '2200k', bufsize: '4000k', audioBitrate: '96k' },
+    { scale: '1920x1080', bitrate: '4000k', maxrate: '4400k', bufsize: '8000k', audioBitrate: '128k' },
   ];
   return processFile(filePath, outputPath, DESKTOP_DIR_NAME, videoConfigs);
 });
 
 ipcMain.handle('processMobileFile', (_event, filePath, outputPath) => {
   const videoConfigs = [
-    { scale: '480x852', bitrate: '200k', maxrate: '220k', bufsize: '400k', audioBitrate: '48k' },
-    { scale: '720x1280', bitrate: '400k', maxrate: '440k', bufsize: '800k', audioBitrate: '64k' },
+    { scale: '720x1280', bitrate: '600k', maxrate: '660k', bufsize: '1200k', audioBitrate: '64k' },
     { scale: '720x1280', bitrate: '800k', maxrate: '880k', bufsize: '1600k', audioBitrate: '96k' },
     { scale: '1080x1920', bitrate: '2000k', maxrate: '2200k', bufsize: '4000k', audioBitrate: '96k' },
   ];
