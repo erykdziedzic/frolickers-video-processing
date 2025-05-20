@@ -72,7 +72,7 @@ const processFile = (filePath, outputPath, dirName, videoConfigs) => {
     `-b:a:${index}`, config.audioBitrate,
   ])).concat([
     '-var_stream_map', videoConfigs.map((_, i) => `v:${i},a:${i}`).join(' '),
-    '-hls_time', '4',
+    '-hls_time', '1',
     '-hls_playlist_type', 'vod',
     '-progress', '-',
     '-nostats',
