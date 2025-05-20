@@ -131,7 +131,6 @@ ipcMain.handle('processDesktopFile', (_event, filePath, outputPath) => {
 
 ipcMain.handle('processMobileFile', (_event, filePath, outputPath) => {
   const videoConfigs = [
-    { scale: '720x1280', bitrate: '600k', maxrate: '660k', bufsize: '1200k', audioBitrate: '64k' },
     { scale: '720x1280', bitrate: '800k', maxrate: '880k', bufsize: '1600k', audioBitrate: '96k' },
     { scale: '1080x1920', bitrate: '2000k', maxrate: '2200k', bufsize: '4000k', audioBitrate: '96k' },
   ];
